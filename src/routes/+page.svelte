@@ -6,7 +6,7 @@
 		get_character_name_by_id,
 		get_character_splash
 	} from '../utils/util';
-	import { onMount, onDestroy } from 'svelte';
+	// import { onMount, onDestroy } from 'svelte';
 
 	let characters: Character[] = [];
 	let characterDB = get_character_list();
@@ -40,6 +40,7 @@
 	const changeCharacter = (index: number) => {
 		characterIndex = index;
 		characterSplash = get_character_splash(characters[characterIndex].id);
+		menuOpen = false;
 	};
 
 	let fileInput: any;
@@ -100,26 +101,26 @@
 
 	let menuOpen = false;
 
-	function handleClickOutside(event: any) {
-		const menu = document.querySelector('.menu');
-		const toggleBtn = document.querySelector('.toggle-btn');
-		if (
-			menu &&
-			toggleBtn &&
-			!menu.contains(event.target) &&
-			!toggleBtn.contains(event.target)
-		) {
-			menuOpen = false;
-		}
-	}
+	// function handleClickOutside(event: any) {
+	// 	const menu = document.querySelector('.menu');
+	// 	const toggleBtn = document.querySelector('.toggle-btn');
+	// 	if (
+	// 		menu &&
+	// 		toggleBtn &&
+	// 		!menu.contains(event.target) &&
+	// 		!toggleBtn.contains(event.target)
+	// 	) {
+	// 		menuOpen = false;
+	// 	}
+	// }
 
-	onMount(() => {
-		document.addEventListener('click', handleClickOutside);
-	});
+	// onMount(() => {
+	// 	document.addEventListener('click', handleClickOutside);
+	// });
 
-	onDestroy(() => {
-		document.removeEventListener('click', handleClickOutside);
-	});
+	// onDestroy(() => {
+	// 	document.removeEventListener('click', handleClickOutside);
+	// });
 </script>
 
 <main>
@@ -222,7 +223,7 @@
 					<div class="flex w-full flex-col justify-center items-center mb-10">
 						<div class="text-white text-2xl mb-5 font-bold">{characters[characterIndex].name}</div>
 						<img
-							class="w-1/3 h-auto object-cover rounded-lg shadow-lg bg-yellow-700 opacity-100"
+							class="w-full md:w-1/3 h-auto object-cover rounded-lg shadow-lg bg-yellow-700 opacity-100"
 							src={characterSplash}
 							alt={characters[characterIndex].name}
 						/>
