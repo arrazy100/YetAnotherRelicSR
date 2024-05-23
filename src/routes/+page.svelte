@@ -9,6 +9,7 @@
 	} from '../utils/util';
 	import { characters } from '../stores/store';
 	import { get, writable } from 'svelte/store';
+	import CharacterSelectCard from '../components/CharacterSelectCard.svelte';
 
 	let characterDB = get_character_list();
 
@@ -34,7 +35,7 @@
 	};
 
 	export const characterIndex = writable(0);
-    $: currentCharacter = $characterIndex !== null ? get(characters)[get(characterIndex)] : null;
+	$: currentCharacter = $characterIndex !== null ? get(characters)[get(characterIndex)] : null;
 
 	let characterId: number = characterDB[0].id;
 	let characterSplash = get_character_splash(characterId);
@@ -102,6 +103,7 @@
 	};
 
 	let menuOpen = false;
+	let characterPopUpShow = false;
 
 	function handleClickOutside(event: any) {
 		const menu = document.querySelector('.menu');
@@ -125,7 +127,7 @@
 	<div class="bg-slate-950 w-full h-full relative flex">
 		<!-- MENU SECTION -->
 		<div
-			class="menu z-10 h-full bg-slate-900 transition-transform transform {menuOpen
+			class="menu z-20 h-full bg-slate-900 transition-transform transform {menuOpen
 				? 'translate-x-0'
 				: '-translate-x-full'} max-h-screen overflow-y-auto absolute top-0 left-0"
 		>
@@ -201,6 +203,10 @@
 
 		<!-- CHARACTER DATA SECTION -->
 		<div class="bg-slate-950 shadow-lg overflow-y-auto overflow-x-auto w-full h-full relative">
+			<!-- CHARACTER SELECT POP UP SECTION -->
+			<CharacterSelectCard bind:show={characterPopUpShow} />
+			<!-- END OF CHARACTER SELECT POP UP SECTION -->
+
 			<!-- EXPAND MENU BUTTON SECTION -->
 			<button
 				class="toggle-btn absolute top-4 left-4 px-4 py-2 bg-slate-950 text-white font-bold rounded-lg shadow-md hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
@@ -217,11 +223,13 @@
 				>
 					<div class="flex w-full flex-col justify-center items-center mb-10">
 						<div class="text-white text-2xl mb-5 font-bold">{currentCharacter.name}</div>
-						<img
-							class="w-full md:w-1/3 h-auto object-cover rounded-lg shadow-lg bg-yellow-700 opacity-100"
-							src={characterSplash}
-							alt={currentCharacter.name}
-						/>
+						<button
+							class="w-full md:w-1/3 h-auto rounded-lg shadow-lg bg-yellow-700 opacity-100"
+							type="button"
+							on:click={() => (characterPopUpShow = !characterPopUpShow)}
+						>
+							<img class="object-cover" src={characterSplash} alt={currentCharacter.name} />
+						</button>
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{#each currentCharacter.relics as _, relicIndex}
@@ -236,22 +244,4 @@
 </main>
 
 <style lang="postcss">
-	::-webkit-scrollbar {
-		@apply w-3;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.5);
-		border-radius: 10px;
-		border: 2px solid transparent;
-		background-clip: padding-box;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.8);
-	}
 </style>
