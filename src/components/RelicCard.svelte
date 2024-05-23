@@ -26,9 +26,13 @@
 
 	let relicSplash = get_relic_splash(get(relic).id, relicIndex);
 
+	const updateRelicSplash = () => {
+		relicSplash = get_relic_splash(get(relic).id, relicIndex);
+	}
+
 	$: if (characterIndex !== undefined && relicIndex !== undefined) {
 		relic.set(get(characters)[characterIndex].relics[relicIndex]);
-		relicSplash = get_relic_splash(get(relic).id, relicIndex);
+		updateRelicSplash();
 	}
 
 	const handleErrorRelicSplash = () => {
@@ -60,6 +64,10 @@
 			});
 		}
 	};
+
+	const handleRelicOptionChange = () => {
+		updateRelicSplash();
+	}
 
 	const handleMainstatChange = (event: any) => {
 		let mainstatId = get(relic).mainstat_id;
@@ -151,6 +159,7 @@
 					<select
 						class="block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 						bind:value={$relic.id}
+						on:change={() => handleRelicOptionChange()}
 					>
 						{#if relicIndex <= 3}
 							{#each relicDB as relicOption}
