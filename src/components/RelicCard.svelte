@@ -18,7 +18,7 @@
 	// variables
 	const relicDB = get_relic_list();
     $: relic = $currentCharacter.relics[relicIndex];
-	$: relicSplash = relic !== undefined ? get_relic_splash(relic.id, relicIndex) : '';
+	$: relicSplash = relic ? get_relic_splash(relic.id, relicIndex) : '';
 
 	// reactivity
 	$: {

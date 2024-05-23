@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { characterIndex, currentCharacter } from "../stores/store";
+	import { currentCharacter } from "../stores/store";
 	import { get_character_splash } from "../utils/relic_util";
 	import CharacterSelectCard from "./CharacterSelectCard.svelte";
 	import RelicCard from "./RelicCard.svelte";
@@ -9,7 +9,7 @@
     let characterPopUpShow = false;
 
     // reactivity
-	$: characterSplash = get_character_splash($currentCharacter.id);
+	$: characterSplash = $currentCharacter ? get_character_splash($currentCharacter.id) : '';
 
     // methods
     const handleErrorCharacterSplash = () => {
