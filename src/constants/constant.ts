@@ -50,3 +50,10 @@ export const SubstatOption = {
     "effect res": 11,
     "break effect": 12
 }
+
+export const get_by_value = (object: any, value: number): string => {
+    const key = Object.keys(object).find(key => object[key] === value);
+
+    if (key === undefined) return '';
+    return key;
+}
