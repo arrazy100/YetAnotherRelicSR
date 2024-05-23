@@ -1,11 +1,13 @@
 export class Character {
     id: number;
     name: string;
+    rank: number;
     relics: Relic[];
 
-    constructor(id: number, name: string, relics: Relic[]) {
+    constructor(id: number, name: string, rank: number, relics: Relic[]) {
         this.id = id;
         this.name = name;
+        this.rank = rank;
         this.relics = relics;
     }
 }
