@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.css';
-	import { characterIndex, characters, currentCharacter, updateRelic } from '../stores/store';
 	import { get_relic_list, get_relic_splash } from '../utils/relic_util';
 	import {
 		BodyOption,
@@ -11,24 +10,35 @@
 		get_by_value
 	} from '../constants/constant';
 	import placeholder from '../assets/placeholder.png';
+	import { characters } from '../stores/store';
+	import type { Relic } from '../models/relic_data';
 
 	// props
+	export let characterIndex: number;
 	export let relicIndex: number;
 
 	// variables
 	const relicDB = get_relic_list();
-    $: relic = $currentCharacter.relics[relicIndex];
-	$: relicSplash = relic ? get_relic_splash(relic.id, relicIndex) : '';
+	let relic: Relic;
+	let relicSplash: string;
 
 	// reactivity
 	$: {
-		if (relic) {
-			characters.update(chars => {
-				chars[$characterIndex].relics[relicIndex] = relic;
-				return chars;
-			});
+		const character = $characters[characterIndex];
+		if (character && character.relics && character.relics[relicIndex]) {
+			relic = character.relics[relicIndex];
+			relicSplash = get_relic_splash(relic.id, relicIndex);
+		} else {
+			relicSplash = placeholder;
 		}
 	}
+
+	const updateCharacterStore = () => {
+		characters.update(chars => {
+			chars[characterIndex].relics[relicIndex] = relic;
+			return chars;
+		});
+	};
 
 	// methods
 	const updateRelicSplash = () => {
@@ -39,25 +49,8 @@
 		relicSplash = placeholder;
 	};
 
-	const validateTotalRoll = () => {
-		let total = 0;
-		relic.substats.forEach((substat) => {
-			total += substat.rolls;
-		});
-		return total !== 5;
-	};
-
-	const increaseRoll = (substatIndex: number) => {
-		if (validateTotalRoll()) {
-			relic.substats[substatIndex].rolls += 1;
-		}
-	};
-
-	const decreaseRoll = (substatIndex: number) => {
-		let rolls = relic.substats[substatIndex].rolls - 1;
-		if (rolls < 0) return;
-
-		relic.substats[substatIndex].rolls -= 1;
+	const handleRelicOptionChange = () => {
+		updateRelicSplash();
 	};
 
 	const getMainstatOption = (relicIndex: number) => {
@@ -73,10 +66,6 @@
 			return PlanarOption;
 		}
 		return RopeOption;
-	};
-
-	const handleRelicOptionChange = () => {
-		updateRelicSplash();
 	};
 
 	const handleMainstatChange = (event: any) => {
@@ -108,6 +97,8 @@
 
 		relic.mainstat_id = mainstatId;
 		relic.mainstat_name = mainstatName;
+
+		updateCharacterStore();
 	};
 
 	const handleSubstatChange = (event: any, substatIndex: number) => {
@@ -128,6 +119,33 @@
 
 		relic.substats[substatIndex].id = substatId;
 		relic.substats[substatIndex].name = substatName;
+
+		updateCharacterStore();
+	};
+
+	const validateTotalRoll = () => {
+		let total = 0;
+		relic.substats.forEach((substat) => {
+			total += substat.rolls;
+		});
+		return total !== 5;
+	};
+
+	const increaseRoll = (substatIndex: number) => {
+		if (validateTotalRoll()) {
+			relic.substats[substatIndex].rolls += 1;
+		}
+
+		updateCharacterStore();
+	};
+
+	const decreaseRoll = (substatIndex: number) => {
+		let rolls = relic.substats[substatIndex].rolls - 1;
+		if (rolls < 0) return;
+
+		relic.substats[substatIndex].rolls -= 1;
+		
+		updateCharacterStore();
 	};
 </script>
 

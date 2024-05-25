@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { characterIndex, characters, currentCharacter } from '../stores/store';
+	import { characters } from '../stores/store';
 	import { get_character_by_id, get_character_list, get_character_name_by_id } from '../utils/relic_util';
 	import { Character, Relic, Substat } from '../models/relic_data';
 	import { clickOutside, exportData, readFile } from '../utils/util';
@@ -32,12 +32,6 @@
 
 		let character = new Character(id, character_db.name, character_db.rank, relics);
 		$characters = [...$characters, character];
-	};
-
-	const changeCharacter = (index: number) => {
-        $currentCharacter = $characters[index];
-        $characterIndex = index;
-		menuOpen = false;
 	};
 
 	const handleFileInput = async (e: any) => {
@@ -107,14 +101,15 @@
 			<div class="w-full flex flex-col items-center p-4">
 				<div class="text-white mb-4 text-2xl font-bold text-center">YET ANOTHER RELIC SETUP</div>
 				<div class="w-full">
-					{#each $characters as character, index}
+					{#each $characters as character}
 						<div class="my-2">
-							<button
-								on:click={() => changeCharacter(index)}
-								class="block w-full py-2 px-3 border text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+							<a
+								href="/character/{character.id}"
+								on:click={() => menuOpen = false}
+								class="block w-full py-2 px-3 border text-center text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 							>
 								{character.name}
-							</button>
+						</a>
 						</div>
 					{/each}
 				</div>
@@ -167,3 +162,24 @@
 		<slot></slot>
 	</div>
 {/if}
+
+<style lang="postcss">
+	::-webkit-scrollbar {
+		@apply w-3;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.5);
+		border-radius: 10px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.8);
+	}
+</style>
