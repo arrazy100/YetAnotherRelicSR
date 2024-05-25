@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.css';
-	import { get_relic_list, get_relic_splash } from '../utils/relic_util';
+	import { get_relic_splash } from '../utils/relic_util';
 	import {
 		BodyOption,
 		BootsOption,
@@ -12,15 +12,16 @@
 	import placeholder from '../assets/placeholder.png';
 	import { characters } from '../stores/store';
 	import type { Relic } from '../models/relic_data';
+	import RelicSelectCard from './RelicSelectCard.svelte';
 
 	// props
 	export let characterIndex: number;
 	export let relicIndex: number;
 
 	// variables
-	const relicDB = get_relic_list();
 	let relic: Relic;
 	let relicSplash: string;
+	let relicPopUpShow = false;
 
 	// reactivity
 	$: {
@@ -34,23 +35,15 @@
 	}
 
 	const updateCharacterStore = () => {
-		characters.update(chars => {
+		characters.update((chars) => {
 			chars[characterIndex].relics[relicIndex] = relic;
 			return chars;
 		});
 	};
 
 	// methods
-	const updateRelicSplash = () => {
-		relicSplash = get_relic_splash(relic.id, relicIndex);
-	};
-
 	const handleErrorRelicSplash = () => {
 		relicSplash = placeholder;
-	};
-
-	const handleRelicOptionChange = () => {
-		updateRelicSplash();
 	};
 
 	const getMainstatOption = (relicIndex: number) => {
@@ -144,108 +137,107 @@
 		if (rolls < 0) return;
 
 		relic.substats[substatIndex].rolls -= 1;
-		
+
 		updateCharacterStore();
 	};
 </script>
 
 {#if relic}
-	<div class="flex w-full">
-		<div class="bg-slate-700 rounded-lg shadow-lg p-6 w-full flex flex-col items-center">
-			<!-- HEADER  -->
-			<div class="w-full flex flex-col xl:flex-row items-center justify-center">
-				<div class="w-full flex xl:mr-4 mb-4 xl:mb-0 items-center justify-center">
-					<img
-						src={relicSplash}
-						alt="relic_{relicIndex}"
-						class="w-24 h-24 object-cover"
-						on:error={() => handleErrorRelicSplash()}
-					/>
-				</div>
-				<div class="flex flex-col justify-center">
-					<select
-						class="block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-						bind:value={relic.id}
-						on:change={() => handleRelicOptionChange()}
-					>
-						{#if relicIndex <= 3}
-							{#each relicDB as relicOption}
-								{#if relicOption.id < 300}
-									<option value={relicOption.id}>{relicOption.name}</option>
-								{/if}
-							{/each}
-						{:else}
-							{#each relicDB as relicOption}
-								{#if relicOption.id > 300}
-									<option value={relicOption.id}>{relicOption.name}</option>
-								{/if}
-							{/each}
-						{/if}
-					</select>
-					<select
-						class="block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-						bind:value={relic.level}
-					>
+	<RelicSelectCard bind:show={relicPopUpShow} bind:relic {characterIndex} {relicIndex} />
+
+	<div class="bg-slate-700 rounded-lg shadow-lg w-full">
+		<!-- HEADER  -->
+		<div class="grid grid-cols-2 gap-x-2">
+			<!-- Relic Splash -->
+			<button
+				type="button"
+				class="w-full h-full shadow-2xl rounded-lg rounded-bl-none rounded-tr-none"
+				on:click|stopPropagation={() => (relicPopUpShow = !relicPopUpShow)}
+			>
+				<img
+					src={relicSplash}
+					alt="relic_{relicIndex}"
+					class="object-contain w-full aspect-video"
+					on:error={() => handleErrorRelicSplash()}
+				/>
+			</button>
+
+			<div class="p-2 justify-center items-center">
+				<!-- Relic Name -->
+				<div class="text-white text-xl font-semibold mb-2">{relic.name}</div>
+
+				<!-- Relic Level -->
+				<div>
+					<select bind:value={relic.level}>
 						{#each { length: 15 } as _, i}
-							<option value={i + 1}>LV {i + 1}</option>
+							<option value={i + 1}>Lv {i + 1}</option>
+						{/each}
+					</select>
+				</div>
+
+				<!-- Relic Mainstat -->
+				<div class="w-full flex">
+					<select
+						bind:value={relic.mainstat_id}
+						on:change={(e) => handleMainstatChange(relicIndex)}
+					>
+						{#each Object.entries(getMainstatOption(relicIndex)) as [key, value]}
+							<option {value}>{key.toUpperCase()}</option>
 						{/each}
 					</select>
 				</div>
 			</div>
-
-			<div class="w-full flex">
-				<select
-					class="block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-					bind:value={relic.mainstat_id}
-					on:change={(e) => handleMainstatChange(relicIndex)}
-				>
-					{#each Object.entries(getMainstatOption(relicIndex)) as [key, value]}
-						<option {value}>{key.toUpperCase()}</option>
-					{/each}
-				</select>
-			</div>
-
-			<!-- SEPARATOR -->
-			<div class="w-full h-0.5 flex bg-white my-5"></div>
-
-			<!-- CONTENT -->
-			<div class="w-full flex flex-col items-center p-0 m-0">
-				{#each relic.substats as substat, substatIndex}
-					<div class="w-full flex flex-row justify-between items-center">
-						<div class="relative w-full">
-							<select
-								class="w-full mt-1 py-2 px-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-								bind:value={substat.id}
-								on:change={(event) => handleSubstatChange(event, substatIndex)}
-							>
-								{#each Object.entries(SubstatOption) as [key, value]}
-									<option {value}>{key.toUpperCase()}</option>
-								{/each}
-							</select>
-						</div>
-						<div class="flex flex-row ml-2 items-center justify-center">
-							<button
-								type="button"
-								class="rounded-md text-white text-2xl"
-								on:click={() => decreaseRoll(substatIndex)}
-							>
-								<i class="fas fa-minus-circle"></i>
-							</button>
-							<div class="text-md font-bold text-white mx-2">
-								{substat.rolls}
-							</div>
-							<button
-								type="button"
-								class="rounded-md text-white text-2xl"
-								on:click={() => increaseRoll(substatIndex)}
-							>
-								<i class="fas fa-plus-circle"></i>
-							</button>
-						</div>
-					</div>
-				{/each}
-			</div>
 		</div>
+
+		<!-- SEPARATOR -->
+		<div class="w-full h-0.5 flex bg-white mt-5"></div>
+
+		<!-- CONTENT -->
+		<div class="w-full flex flex-col items-center p-5">
+			{#each relic.substats as substat, substatIndex}
+				<div class="w-full flex flex-row justify-between items-center">
+					<div class="relative w-full">
+						<select
+							bind:value={substat.id}
+							on:change={(event) => handleSubstatChange(event, substatIndex)}
+						>
+							{#each Object.entries(SubstatOption) as [key, value]}
+								<option {value}>{key.toUpperCase()}</option>
+							{/each}
+						</select>
+					</div>
+					<div class="flex flex-row ml-2 items-center justify-center">
+						<button
+							type="button"
+							class="rounded-md text-white text-2xl"
+							on:click={() => decreaseRoll(substatIndex)}
+						>
+							<span class="fas fa-minus-circle"></span>
+						</button>
+						<div class="text-md font-bold text-white mx-2">
+							{substat.rolls}
+						</div>
+						<button
+							type="button"
+							class="rounded-md text-white text-2xl"
+							on:click={() => increaseRoll(substatIndex)}
+						>
+							<span class="fas fa-plus-circle"></span>
+						</button>
+					</div>
+				</div>
+			{/each}
+		</div>
+
 		<slot></slot>
 	</div>
 {/if}
+
+<style lang="postcss">
+	select {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		@apply font-semibold block w-full mt-1 py-2 px-3 border border-gray-300 bg-slate-700 rounded-md shadow-sm focus:outline-none focus:bg-gray-500 focus:border-gray-500 focus:opacity-80 sm:text-sm hover:cursor-pointer text-white;
+	}
+</style>

@@ -1,64 +1,50 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { Character, Relic, Substat } from '../models/relic_data';
+	import type { RelicDB } from '../models/db';
+	import { Relic } from '../models/relic_data';
 	import { characters } from '../stores/store';
-	import {
-		get_character_by_id,
-		get_character_list,
-		get_character_splash
-	} from '../utils/relic_util';
+	import { get_relic_list, get_relic_splash } from '../utils/relic_util';
 	import { clickOutside } from '../utils/util';
 	import placeholder from '../assets/placeholder.png';
 
 	// props
 	export let show = false;
 	export let characterIndex: number;
+	export let relicIndex: number;
+	export let relic: Relic;
 
 	// variables
 	let search = '';
+	let relic_list: RelicDB[];
 
 	// reactivity
-	$: character_list = get_character_list().filter((x) =>
-		x.name.toLowerCase().includes(search.toLowerCase())
-	);
-	$: currentCharacter = $characters[characterIndex];
+	$: {
+		relic_list = get_relic_list().filter((x) =>
+			x.name.toLowerCase().includes(search.toLowerCase())
+		);
+	}
 
 	// methods
-	const addCharacter = (id: number) => {
-		if (id === 0) {
-			return;
-		}
-
-		let existing = $characters.filter((c) => c.id == id).length > 0;
-		if (existing) {
-			return;
-		}
-
-		let character_db = get_character_by_id(id);
-
-		let relics = Array.from({ length: 6 }, () => {
-			let substats = Array.from({ length: 4 }, () => new Substat(0, '', 0));
-			return new Relic(0, '', 0, 0, '', substats);
+	const updateCharacterStore = () => {
+		characters.update((chars) => {
+			chars[characterIndex].relics[relicIndex] = relic;
+			return chars;
 		});
-
-		let character = new Character(id, character_db.name, character_db.rank, relics);
-		$characters = [...$characters, character];
 	};
 
-	const handleCharacterClick = (id: number) => {
+	const handleRelicClick = (selectedRelic: RelicDB) => {
 		show = false;
-		if (currentCharacter.id === id) return;
+		relic.id = selectedRelic.id;
+		relic.name = selectedRelic.name;
 
-		let existing = $characters.some((c) => c.id === id);
-		if (!existing) {
-			addCharacter(id);
-		}
-
-		goto(`/character/${id}`);
+		updateCharacterStore();
 	};
 
-	const handleErrorCharacterSplash = (event: any) => {
+	const handleErrorRelicSplash = (event: any) => {
 		event.target.src = placeholder;
+	};
+
+	const shouldRenderRelic = (relicOption: RelicDB) => {
+		return (relicIndex <= 3 && relicOption.id < 300) || (relicIndex > 3 && relicOption.id > 300);
 	};
 </script>
 
@@ -82,12 +68,12 @@
 		</div>
 
 		<div class="px-10 pt-5">
-			<div class="mb-10 text-2xl flex justify-center items-center text-white">Character List</div>
+			<div class="mb-10 text-2xl flex justify-center items-center text-white">Relic List</div>
 			<div class="mb-4 relative flex justify-center items-center">
 				<input
 					type="text"
 					class="block w-full rounded-lg px-4 py-2 bg-slate-300 shadow-lg text-black placeholder:text-slate-700"
-					placeholder="Search character..."
+					placeholder="Search relic..."
 					bind:value={search}
 				/>
 				<button
@@ -101,23 +87,25 @@
 		</div>
 
 		<div class="max-h-[80%] overflow-y-auto flex justify-center">
-			<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 px-5">
-				{#each character_list as character}
-					<button
-						type="button"
-						class="w-full h-full grid"
-						on:click={() => handleCharacterClick(character.id)}
-					>
-						<img
-							src={get_character_splash(character.id)}
-							alt="character_{character.id}"
-							class="object-cover bg-yellow-700 rounded-lg w-full aspect-square"
-							on:error={handleErrorCharacterSplash}
-						/>
-						<div class="text-sm text-white text-center w-full">
-							{character.name}
-						</div>
-					</button>
+			<div class="grid grid-cols-3 lg:grid-cols-3 gap-4 px-5">
+				{#each relic_list as relicOption}
+					{#if shouldRenderRelic(relicOption)}
+						<button
+							type="button"
+							class="w-full h-full grid"
+							on:click={() => handleRelicClick(relicOption)}
+						>
+							<img
+								src={get_relic_splash(relicOption.id, relicIndex)}
+								alt="relic_{relicOption.id}"
+								class="object-cover bg-yellow-700 rounded-lg w-full aspect-square"
+								on:error={handleErrorRelicSplash}
+							/>
+							<div class="text-sm text-white text-center w-full">
+								{relicOption.name}
+							</div>
+						</button>
+					{/if}
 				{/each}
 			</div>
 		</div>

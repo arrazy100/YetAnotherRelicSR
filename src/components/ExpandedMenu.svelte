@@ -27,7 +27,7 @@
 
 		let relics = Array.from({ length: 6 }, () => {
 			let substats = Array.from({ length: 4 }, () => new Substat(0, '', 0));
-			return new Relic(0, 0, 0, '', substats);
+			return new Relic(0, '', 0, 0, '', substats);
 		});
 
 		let character = new Character(id, character_db.name, character_db.rank, relics);
@@ -106,7 +106,7 @@
 							<a
 								href="/character/{character.id}"
 								on:click={() => menuOpen = false}
-								class="block w-full py-2 px-3 border text-center text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+								class="block w-full py-2 px-3 bg-black hover:bg-yellow-700 border text-center text-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 							>
 								{character.name}
 						</a>

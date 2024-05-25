@@ -6,8 +6,10 @@
 	// props
 	export let data;
 
-	// store
-	$: characterIndex = 0;
+	// variables
+	let characterIndex: number;
+
+	// reactivity
 	$: {
 		let index = $characters.findIndex((c) => c.id === parseInt(data.id));
 		if (index === -1) error(404, 'Character id not found');
@@ -17,6 +19,5 @@
 		console.log(characterIndex);
 	}
 </script>
-
 
 <CharacterCard {characterIndex} />

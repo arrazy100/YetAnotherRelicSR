@@ -31,7 +31,7 @@
 		<CharacterSelectCard bind:show={characterPopUpShow} {characterIndex} />
 
 		<div
-			class="flex flex-col bg-slate-800 mx-10 sm:mx-20 md:mx-30 lg:mx-40 my-10 p-10 rounded-lg items-center justify-center"
+			class="flex flex-col bg-slate-800 md:mx-30 lg:mx-40 p-10 rounded-lg items-center justify-center"
 		>
 			<div class="flex w-full flex-col justify-center items-center mb-10">
 				<div class="text-white text-2xl mb-5 font-bold">{character.name}</div>
@@ -51,7 +51,7 @@
 					/>
 				</button>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 				{#each character.relics as _, relicIndex}
 					<RelicCard {characterIndex} {relicIndex} />
 				{/each}
