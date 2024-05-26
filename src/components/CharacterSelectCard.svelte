@@ -1,3 +1,24 @@
+<style lang="postcss">
+	::-webkit-scrollbar {
+		@apply w-3;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.5);
+		border-radius: 10px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.8);
+	}
+</style>
+
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { Character, Relic, Substat } from '../models/relic_data';
@@ -64,29 +85,26 @@
 
 {#if show}
 	<div
-		class="w-full h-full md:w-8/12 z-10 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-950 shadow-lg rounded-lg"
+		class="fixed left-1/2 top-1/2 z-10 h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-lg bg-slate-900 pb-5 shadow-lg md:w-8/12"
 		use:clickOutside
 		on:click_outside={() => (show = false)}
 	>
-		<div
-			class="fixed top-4 right-4 bg-slate-950 text-white font-bold rounded-lg shadow-md hover:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+		<button
+			class="fixed right-4 top-4 z-10 bg-slate-900 px-4 py-2 text-white hover:bg-slate-800 focus:ring-2 focus:ring-slate-500 active:bg-slate-700"
+			type="button"
+			on:click={() => {
+				show = !show;
+			}}
 		>
-			<button
-				type="button"
-				on:click={() => {
-					show = !show;
-				}}
-			>
-				<span class="fas fa-times text-2xl"></span>
-			</button>
-		</div>
+			<span class="fas fa-times"></span>
+		</button>
 
 		<div class="px-10 pt-5">
-			<div class="mb-10 text-2xl flex justify-center items-center text-white">Character List</div>
-			<div class="mb-4 relative flex justify-center items-center">
+			<div class="mb-10 flex items-center justify-center text-2xl text-white">Character List</div>
+			<div class="relative mb-4 flex items-center justify-center">
 				<input
 					type="text"
-					class="block w-full rounded-lg px-4 py-2 bg-slate-300 shadow-lg text-black placeholder:text-slate-700"
+					class="block w-full rounded-lg bg-slate-300 px-4 py-2 text-black shadow-lg placeholder:text-slate-700"
 					placeholder="Search character..."
 					bind:value={search}
 				/>
@@ -100,21 +118,23 @@
 			</div>
 		</div>
 
-		<div class="max-h-[80%] overflow-y-auto flex justify-center">
-			<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 px-5">
+		<div class="flex max-h-[80%] justify-center overflow-y-auto">
+			<div class="grid grid-cols-2 gap-4 px-5 md:grid-cols-2 lg:grid-cols-3">
 				{#each character_list as character}
 					<button
 						type="button"
-						class="w-full h-full grid"
+						class="grid h-full w-full"
 						on:click={() => handleCharacterClick(character.id)}
 					>
 						<img
 							src={get_character_splash(character.id)}
 							alt="character_{character.id}"
-							class="object-cover bg-yellow-700 rounded-lg w-full aspect-square"
+							class="object-cover {character.rank === 5
+								? 'bg-orange-500'
+								: 'bg-purple-500'} aspect-square w-full rounded-lg"
 							on:error={handleErrorCharacterSplash}
 						/>
-						<div class="text-sm text-white text-center w-full">
+						<div class="w-full text-center text-lg text-white">
 							{character.name}
 						</div>
 					</button>
@@ -124,24 +144,3 @@
 		<slot></slot>
 	</div>
 {/if}
-
-<style lang="postcss">
-	::-webkit-scrollbar {
-		@apply w-3;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.5);
-		border-radius: 10px;
-		border: 2px solid transparent;
-		background-clip: padding-box;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.8);
-	}
-</style>

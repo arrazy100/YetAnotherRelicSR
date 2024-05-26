@@ -1,3 +1,9 @@
+<style lang="postcss">
+	select {
+		@apply my-1 block w-full rounded-md border border-gray-300 bg-slate-700 px-3 py-2 text-white hover:cursor-pointer focus:border-blue-500 focus:outline-none;
+	}
+</style>
+
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.css';
 	import { get_relic_splash } from '../utils/relic_util';
@@ -13,6 +19,7 @@
 	import { characters } from '../stores/store';
 	import type { Relic } from '../models/relic_data';
 	import RelicSelectCard from './RelicSelectCard.svelte';
+	import { toTitleCase } from '../utils/util';
 
 	// props
 	export let characterIndex: number;
@@ -143,32 +150,42 @@
 </script>
 
 {#if relic}
-	<RelicSelectCard bind:show={relicPopUpShow} bind:relic {characterIndex} {relicIndex} />
+	<RelicSelectCard
+		bind:show={relicPopUpShow}
+		bind:relic
+		{characterIndex}
+		{relicIndex}
+	/>
 
-	<div class="bg-slate-700 rounded-lg shadow-lg w-full">
+	<div class="w-full rounded-lg bg-slate-700 shadow-lg">
 		<!-- HEADER  -->
 		<div class="grid grid-cols-2 gap-x-2">
 			<!-- Relic Splash -->
 			<button
 				type="button"
-				class="w-full h-full shadow-2xl rounded-lg rounded-bl-none rounded-tr-none"
+				class="h-full w-full rounded-lg rounded-bl-none rounded-tr-none shadow-2xl"
 				on:click|stopPropagation={() => (relicPopUpShow = !relicPopUpShow)}
 			>
 				<img
 					src={relicSplash}
 					alt="relic_{relicIndex}"
-					class="object-contain w-full aspect-video"
+					class="aspect-video w-full object-contain"
 					on:error={() => handleErrorRelicSplash()}
 				/>
 			</button>
 
-			<div class="p-2 justify-center items-center">
+			<div class="items-center justify-center p-2">
 				<!-- Relic Name -->
-				<div class="text-white text-xl font-semibold mb-2">{relic.name}</div>
+				<div class="mb-2 text-xl font-semibold text-white">{relic.name}</div>
 
 				<!-- Relic Level -->
 				<div>
 					<select bind:value={relic.level}>
+						<option
+							value={0}
+							disabled
+							selected>Select Level</option
+						>
 						{#each { length: 15 } as _, i}
 							<option value={i + 1}>Lv {i + 1}</option>
 						{/each}
@@ -176,13 +193,18 @@
 				</div>
 
 				<!-- Relic Mainstat -->
-				<div class="w-full flex">
+				<div class="flex w-full">
 					<select
 						bind:value={relic.mainstat_id}
 						on:change={(e) => handleMainstatChange(relicIndex)}
 					>
+						<option
+							value={0}
+							disabled
+							selected>Select Mainstat</option
+						>
 						{#each Object.entries(getMainstatOption(relicIndex)) as [key, value]}
-							<option {value}>{key.toUpperCase()}</option>
+							<option {value}>{toTitleCase(key)}</option>
 						{/each}
 					</select>
 				</div>
@@ -190,36 +212,41 @@
 		</div>
 
 		<!-- SEPARATOR -->
-		<div class="w-full h-0.5 flex bg-white mt-5"></div>
+		<div class="mt-5 flex h-0.5 w-full bg-white"></div>
 
 		<!-- CONTENT -->
-		<div class="w-full flex flex-col items-center p-5">
+		<div class="flex w-full flex-col items-center p-5">
 			{#each relic.substats as substat, substatIndex}
-				<div class="w-full flex flex-row justify-between items-center">
+				<div class="flex w-full flex-row items-center justify-between">
 					<div class="relative w-full">
 						<select
 							bind:value={substat.id}
 							on:change={(event) => handleSubstatChange(event, substatIndex)}
 						>
+							<option
+								value={0}
+								disabled
+								selected>Select Substat</option
+							>
 							{#each Object.entries(SubstatOption) as [key, value]}
-								<option {value}>{key.toUpperCase()}</option>
+								<option {value}>{toTitleCase(key)}</option>
 							{/each}
 						</select>
 					</div>
-					<div class="flex flex-row ml-2 items-center justify-center">
+					<div class="ml-2 flex flex-row items-center justify-center">
 						<button
 							type="button"
-							class="rounded-md text-white text-2xl"
+							class="rounded-md text-2xl text-white"
 							on:click={() => decreaseRoll(substatIndex)}
 						>
 							<span class="fas fa-minus-circle"></span>
 						</button>
-						<div class="text-md font-bold text-white mx-2">
+						<div class="text-md mx-2 font-bold text-white">
 							{substat.rolls}
 						</div>
 						<button
 							type="button"
-							class="rounded-md text-white text-2xl"
+							class="rounded-md text-2xl text-white"
 							on:click={() => increaseRoll(substatIndex)}
 						>
 							<span class="fas fa-plus-circle"></span>
@@ -232,12 +259,3 @@
 		<slot></slot>
 	</div>
 {/if}
-
-<style lang="postcss">
-	select {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		@apply font-semibold block w-full mt-1 py-2 px-3 border border-gray-300 bg-slate-700 rounded-md shadow-sm focus:outline-none focus:bg-gray-500 focus:border-gray-500 focus:opacity-80 sm:text-sm hover:cursor-pointer text-white;
-	}
-</style>

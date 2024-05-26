@@ -1,3 +1,24 @@
+<style lang="postcss">
+	::-webkit-scrollbar {
+		@apply w-3;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.5);
+		border-radius: 10px;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.8);
+	}
+</style>
+
 <script lang="ts">
 	import { get_character_splash } from '../utils/relic_util';
 	import CharacterSelectCard from './CharacterSelectCard.svelte';
@@ -27,19 +48,20 @@
 </script>
 
 {#if character}
-	<div class="h-screen overflow-y-auto">
-		<CharacterSelectCard bind:show={characterPopUpShow} {characterIndex} />
+	<div class="h-[calc(100vh-4rem)] overflow-y-auto">
+		<CharacterSelectCard
+			bind:show={characterPopUpShow}
+			{characterIndex}
+		/>
 
-		<div
-			class="flex flex-col bg-slate-800 md:mx-30 lg:mx-40 p-10 rounded-lg items-center justify-center"
-		>
-			<div class="flex w-full flex-col justify-center items-center mb-10">
-				<div class="text-white text-2xl mb-5 font-bold">{character.name}</div>
+		<div class="md:mx-30 flex flex-col items-center justify-center bg-slate-800 p-10 lg:mx-40">
+			<div class="mb-10 flex w-full flex-col items-center justify-center">
+				<div class="mb-5 text-2xl font-bold text-white">{character.name}</div>
 				<button
-					class="max-w-[50vw] flex justify-center items-center rounded-lg shadow-lg {character.rank ===
+					class="flex max-w-[50vw] items-center justify-center rounded-lg shadow-lg {character.rank ===
 					5
-						? 'bg-yellow-700'
-						: 'bg-purple-700'} opacity-100"
+						? 'bg-orange-500'
+						: 'bg-purple-500'} opacity-100"
 					type="button"
 					on:click|stopPropagation={() => (characterPopUpShow = !characterPopUpShow)}
 				>
@@ -51,9 +73,12 @@
 					/>
 				</button>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
 				{#each character.relics as _, relicIndex}
-					<RelicCard {characterIndex} {relicIndex} />
+					<RelicCard
+						{characterIndex}
+						{relicIndex}
+					/>
 				{/each}
 			</div>
 		</div>
@@ -61,24 +86,3 @@
 		<slot></slot>
 	</div>
 {/if}
-
-<style lang="postcss">
-	::-webkit-scrollbar {
-		@apply w-3;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.5);
-		border-radius: 10px;
-		border: 2px solid transparent;
-		background-clip: padding-box;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: rgba(255, 255, 255, 0.8);
-	}
-</style>
